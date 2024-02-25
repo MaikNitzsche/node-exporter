@@ -1,0 +1,32 @@
+version: '3.8'
+
+services:
+  node-exporter:
+    image: prom/node-exporter:latest
+    container_name: node-exporter
+    restart: unless-stopped
+    volumes:
+      - type: bind #- /proc:/host/proc:ro
+        read_only: true
+        source: /proc
+        target: /host/proc
+      - type: bind #- /sys:/host/sys:ro
+        read_only: true
+        source: /sys
+        target: /host/sys
+      - type: bind #- /:/rootfs:ro
+        read_only: true
+        source: /
+        target: /rootfs
+    command:
+      - '--path.procfs=/host/proc'
+      - '--path.rootfs=/rootfs'
+      - '--path.sysfs=/host/sys'
+      - '--collector.filesystem.mount-points-exclude=^/(sys|proc|dev|host|etc)($$|/)'
+      - '--collector.processes'
+      - '--collector.systemd'
+    expose:
+      - 9100
+    ports:
+      - "9100:9100"
+    network_mode: bridge
